@@ -1,2 +1,2 @@
-# parallelotope
-Proof of concept : Key-recovery attack against a lattice-based cryptographic scheme
+# Parallelotope
+Proof of concept implementation of a key-recovery attack against a lattice-based cryptographic scheme
