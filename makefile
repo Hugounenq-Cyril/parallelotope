@@ -1,5 +1,5 @@
 CC      = g++
-CFLAGS  = -Wall -O3 -std=c++0x
+CFLAGS  = -Wall -O3 -std=c++0x -lgmp
 RM      = rm -f
 
 default: all
