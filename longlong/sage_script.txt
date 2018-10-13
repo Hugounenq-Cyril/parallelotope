@@ -1,0 +1,20 @@
+
+R.<x> = QQ[]
+S.<x> = R.quotient("x^20-1")
+
+f = 0
+
+f += randint(10,20)
+
+for i in range(1,20,1):
+    r = randint(0,6)   
+    if r == 0:
+        f += x ^ i
+    if r == 1:
+        f += 2*x ^ i
+
+g = 1/f
+
+
+f.list()
+g.list()

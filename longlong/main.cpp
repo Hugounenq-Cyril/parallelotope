@@ -2,33 +2,40 @@
 
 using namespace std;
 
-int secret_vector[N] = {18, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0};
+int secret_vector[N] = {
+    20, 2, 0, 2, 0, 2, 0, 1, 1, 2, 0, 2, 2, 1, 2, 2, 2, 2, 1, 2
+};
 long long secret_vector_inv[N] = 
     {
-        7563229711555771,
-        59685984079253,
-        -323977437537551,
-        -345559569507163,
-        34622441190811,
-        -358246604792467,
-        -370391373369971,
-        61631844719057,
-        80867459220931,
-        -347245141372507,
-        71311012213969,
-        111757687830557,
-        -355011020992349,
-        -449867176721587,
-        -357281146555091,
-        114503040178217
+        58815172414720499,
+ -5192774098259369,
+ 2827366444733629,
+ -4942902230130329,
+ 3435735210471119,
+ -5367469937079749,
+ 3935332910174769,
+ -2303977703098129,
+ 1368798786121479,
+ -5184747834799869,
+ 4362951573960249,
+ -4887168250376869,
+ -1799568248053721,
+ -1684244241172529,
+ -2215521144466131,
+ -4723162182074549,
+ -2715118844169781,
+ -4323168768204729,
+ -341000589441571,
+ -4895194513836369
     };
 
-// size of long long in this implem: 9223372036854775807
+long long DET = 1111789582730830300;
 
-long long DET= 134940772463636880;
+// size of long long in this implem: 
+//              9223372036854775807
 
 int secret_norm = norm(secret_vector);
-int diameter; // = sum (secret[i])
+int diameter; // = (sum_i secret[i])^2 * N
 int ** V; 
 long long ** Binv = rotation_matrix(secret_vector_inv); 
 
@@ -61,23 +68,28 @@ int main(int argc, char** argv){
     for(int i = 0; i < N; i++){
         vertex[i] = secret_vector[i]-diameter/2;
     }
-
-
-
     
     dir[0] = 1;
-    int * point = new int[N];
+    
     for(int i = 1; i < N; i++){
         dir[i] = -1;
-
     }
     
     cout << "\n Target vertices: Rows of the following matrix \n";
     V = rotation_matrix(vertex);
     print_matrix(V);
+
+    for(int i = 0; i < N; i++)
+    {
+        if(!is_in(V[i])) {
+            cout << "not in!" << endl;
+            char c;
+            cin >> c;
+        } 
+    }
     
+    int * point = new int[N]; //fall(point);
     fall(point);
-    
     return 0;
 }
 
@@ -89,13 +101,55 @@ bool victory(int * p){
     return false;
 }
 
+int * fall_orth(int * point){
+
+    cout << "Falling:" << endl;
+    print_point(point);
+
+    int * first_bounce = push(point, dir, false);
+
+    int * bounce = new int[N];
+
+    for(int i = 0; i < N; i++){
+        bounce[i] = first_bounce[i];
+    }    
+    int * orth_dir = new int[N];
+    orth_dir[0] = 1;
+
+    int bounces = 0;
+    for(int i = 1; i < N; i++){
+        orth_dir[i] = 1;
+        bounce = push(bounce, orth_dir, true);
+        orth_dir[i] = 0;
+        bounces ++ ;
+    }
+    cout << "Bounces: " << bounces << endl;
+
+    // Reuse first_bounce to compute medium point
+
+    for(int i = 0; i < N; i++){
+        first_bounce[i] =  (first_bounce[i] + bounce[i])/2;
+    }
+
+    print_point(bounce);
+    //print_point(first_bounce);
+    print_point(V[0]);
+    if(is_in(first_bounce)) return first_bounce;
+
+    cout << "giving last bounce" << endl;
+
+    return bounce;
+
+
+}
+
 void fall(int * point){
 
 
     if(is_already_visited(point)) return;
     ALREADY_VISITED.push_back(point);
     if(is_far(point)) return;
-    //print_point(point);
+    
     //char c;
     //cin >> c;
     
@@ -156,7 +210,8 @@ void fall(int * point){
         }
         orth_dir[j] = 0;
     }
-    cout << "change" << endl;
+
+    //cout << "change" << endl;
 }
 
 int norm(int * p){
@@ -170,15 +225,43 @@ int norm(int * p){
 
 bool is_far(int * p){
     
-    if(norm(p) > 2*N*secret_norm){return true;}
+    int * a = new int[N];
+    a[0] = p[0] - diameter/2;
+    for(int i = 1; i < N; i++){
+        a[i] = p[i] + diameter/2;
+    }
+
+    if(norm(a) > N*diameter*diameter/4){return true;}
     return false;
 }
 
 
+int * push (int * point, int * dir, bool bidirectional){
+    int * res = new int[N];
+    for(int i = 0; i < N; i++){
+        res[i] = point[i];
+    }
+
+    while(is_in(res)){
+        res = add(res, dir);
+    }
+    res = add(res, neg(dir));
+    
+    
+    if(!equals(res, point) || !bidirectional) return res;
+    
+    // Now proceed in the other direction
+    while(is_in(res)){
+        res = add(res, neg(dir));
+    }
+    res = add(res, dir);
+    return res;
+}
+
 bool is_in(int * p){
     
     calls ++;
-
+    cout << calls << endl;
     long long * res = matrix_vector(Binv, p);    
 
     // if res/DET < -1/2 or > 1/2
@@ -276,6 +359,7 @@ double* matrix_vector_den(int ** A, int* v, int det){
 
 void print_point(int* p){
 
+    cout << norm(p) << " | ";
     cout << "(";
     for(int i = 0; i < N-1; i++){
 
@@ -301,14 +385,6 @@ void print_point(long long * p){
     cout << endl;
 }
 
-
-void print_point(double* p){
-    for(int i = 0; i < N-1; i++){
-        cout <<  p[i] << ",";
-    }
-    cout <<  p[N-1];
-    cout << endl;
-}
 
 
 void print_matrix(int** p){

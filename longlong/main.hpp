@@ -6,7 +6,7 @@
 #include "gmp.h"
 #include <limits>
 
-#define N 16
+#define N 20
 
 long long ** rotation_matrix(long long *);
 int ** rotation_matrix(int *);
@@ -17,8 +17,10 @@ long long * matrix_vector(long long**, int*);
 double* matrix_vector_den(int**, int*, int);
 
 
-void move (int *);
+int * push (int *, int *, bool);
 void fall (int *);
+int * fall_orth (int *);
+
 int norm(int *);
 
 int * add(int *, int *);
