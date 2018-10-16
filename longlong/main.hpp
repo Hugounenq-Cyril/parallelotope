@@ -3,18 +3,19 @@
 #include <stdlib.h>
 #include <math.h>
 #include <vector>
-#include "gmp.h"
+#include "gmpxx.h"
+#include "fmpz_poly.h"
 #include <limits>
 
-#define N 20
+#define N 128
+#define LENGTH 8
 
-long long ** rotation_matrix(long long *);
-int ** rotation_matrix(int *);
+mpz_class ** rotation_matrix(mpz_class *);
+int ** vertex_matrix(int *);
 
-long long * matrix_vector(long long**, int*);
+mpz_class * matrix_vector(mpz_class **, int *);
+mpz_class * poly_mult(mpz_class *, int *);
 
-// Computes (1/det)* A * v  
-double* matrix_vector_den(int**, int*, int);
 
 
 int * push (int *, int *, bool);
@@ -36,8 +37,7 @@ bool equals(int *, int *);
 bool victory(int *);
 
 void print_matrix(int **);
-void print_matrix(long long **);
+void print_matrix(mpz_class **);
 void print_point(int *);
-void print_point(long long *);
+void print_point(mpz_class *);
 void print_visited();
-
