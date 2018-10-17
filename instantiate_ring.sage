@@ -9,7 +9,7 @@ f = 0
 f += randint(N,2*N)
 
 for i in range(1,N,1):
-    r = randint(0,5)   
+    r = randint(0,2)   
     if r == 0:
         f += x ^ i
     if r == 1:

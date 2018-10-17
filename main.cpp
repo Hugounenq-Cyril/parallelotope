@@ -126,6 +126,8 @@ void fall(int * point){
     int * dir_point = new int[N];
     int * orth_dir = new int[N];
     int * can_dir = new int[N];
+    int * final_point = new int[N];
+
    
    // 1. Push in the direction dir = (1,-1,-1, etc)
     
@@ -140,7 +142,6 @@ void fall(int * point){
 
     // Canonic norm-growing directions 
     
-    int * final_point = new int[N];
 
     set(final_point, point);
 
@@ -157,7 +158,6 @@ void fall(int * point){
         }
         else if(is_in(new_point) && norm(new_point) > norm(final_point)){
             //fall(new_point);
-            final_point = add(final_point, new_point);
             set(final_point, new_point);
         }
         can_dir[j] = 0;
@@ -258,6 +258,14 @@ bool is_in(int * p){
     
     mpz_class * res = poly_mult(secret_vector_inv, p);
     
+    /*if(percent == 100){
+        int * aux = new int[N];
+        aux = add(p, neg(vertex));
+        print_point(aux);
+        char c ;
+        cin >> c;
+    }*/
+
     // if res/DET < -1/2 or > 1/2
 
     for(int i = 0; i < N; i++){
