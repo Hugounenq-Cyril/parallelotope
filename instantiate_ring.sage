@@ -1,4 +1,4 @@
-N = 128
+N = 64
 phi = x^N-1
 
 R.<x> = QQ[]
@@ -6,10 +6,10 @@ S.<x> = R.quotient(phi)
 
 f = 0
 
-f += randint(2*N/3,N)
+f += randint(N,2*N)
 
 for i in range(1,N,1):
-    r = randint(0,2)   
+    r = randint(0,5)   
     if r == 0:
         f += x ^ i
     if r == 1:
@@ -18,10 +18,8 @@ for i in range(1,N,1):
 r = 0
 for i in range(0,N,1):
     r += f[i]
-r
+
+print(r)
 
 g = 1/f
 
-
-f.list()
-g.list()

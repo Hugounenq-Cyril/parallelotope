@@ -4,10 +4,8 @@
 #include <math.h>
 #include <vector>
 #include "gmpxx.h"
-#include "fmpz_poly.h"
-#include <limits>
 
-#define N 128
+#define N 64
 #define LENGTH 8
 
 mpz_class ** rotation_matrix(mpz_class *);
@@ -26,7 +24,7 @@ int norm(int *);
 
 int * add(int *, int *);
 int * neg(int *);
-
+void set(int *, int *);
 
 bool is_in(int *);
 bool is_already_visited(int *);
