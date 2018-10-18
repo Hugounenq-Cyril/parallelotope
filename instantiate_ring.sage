@@ -1,7 +1,14 @@
-N = 64
-phi = x^N-1
+from sage.stats.distributions.discrete_gaussian_integer import DiscreteGaussianDistributionIntegerSampler
+sigma = 0.6
+D = DiscreteGaussianDistributionIntegerSampler(sigma=sigma)
 
-R.<x> = QQ[]
+
+N = 334
+
+
+R.<y> = QQ[]
+phi = y^N-1
+
 S.<x> = R.quotient(phi)
 
 f = 0
@@ -9,17 +16,14 @@ f = 0
 f += randint(N,2*N)
 
 for i in range(1,N,1):
-    r = randint(0,2)   
-    if r == 0:
-        f += x ^ i
-    if r == 1:
-        f += 2*x ^ i
+    f += abs(D()) * x^i
 
 r = 0
 for i in range(0,N,1):
     r += f[i]
 
-print(r)
+r_str = "Trace: " + str(r)
+print(r_str)
 
 g = 1/f
 

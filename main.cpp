@@ -1,5 +1,6 @@
 #include "main.hpp"
 #include "keys.hpp"
+//#include "test_keys_64.hpp"
 
 using namespace std;
 
@@ -51,6 +52,8 @@ int main(int argc_mpz, char** argv){
         point[i] = 0;
     }
     
+    /*int point[N] = {20, -21, -22, -22, -22, -21, -21, -22, -22, -22, -22, -22, -22, -21, -21, -20, -21, -21, -22, -22, -21, -21, -21, -21, -21, -21, -22, -21, -21, -22, -21, -21};*/
+
     fall(point);
     return 0;
 }
@@ -62,47 +65,6 @@ bool victory(int * p){
 
 }
 
-int * fall_orth(int * point){
-
-    cout << "Falling:" << endl;
-    print_point(point);
-
-    int * first_bounce = push(point, dir, false);
-
-    int * bounce = new int[N];
-
-    for(int i = 0; i < N; i++){
-        bounce[i] = first_bounce[i];
-    }    
-    int * orth_dir = new int[N];
-    orth_dir[0] = 1;
-
-    int bounces = 0;
-    for(int i = 1; i < N; i++){
-        orth_dir[i] = 1;
-        bounce = push(bounce, orth_dir, true);
-        orth_dir[i] = 0;
-        bounces ++ ;
-    }
-    cout << "Bounces: " << bounces << endl;
-
-    // Reuse first_bounce to compute medium point
-
-    for(int i = 0; i < N; i++){
-        first_bounce[i] =  (first_bounce[i] + bounce[i])/2;
-    }
-
-    print_point(bounce);
-    //print_point(first_bounce);
-    
-    if(is_in(first_bounce)) return first_bounce;
-
-    cout << "giving last bounce" << endl;
-
-    return bounce;
-
-
-}
 
 void fall(int * point){
 
@@ -116,6 +78,7 @@ void fall(int * point){
         print_point(point);
         char c;
         cin >> c;
+        exit(0);
         return;
     }
 
@@ -132,9 +95,6 @@ void fall(int * point){
    // 1. Push in the direction dir = (1,-1,-1, etc)
     
     dir_point = add(point, dir);
-    for(int i = 0; i < N; i++){
-        dir_point[i] = point[i] + dir[i];
-    }
 
     if(is_in(dir_point)){
         fall(dir_point);     
@@ -142,8 +102,108 @@ void fall(int * point){
 
     // Canonic norm-growing directions 
     
-
     set(final_point, point);
+
+    for(int i = 0; i < N; i++){
+        can_dir[i] = 0;
+    }
+
+    for(int j = 0; j < N; j++){
+        
+        if(j == 0) can_dir[j] = 1;
+        else can_dir[j] = -1;
+    
+        new_point = add(final_point, can_dir);
+    
+        if(is_in(new_point) && norm(new_point) > norm(final_point))
+        {
+            //fall(new_point);
+            set(final_point, new_point);
+        }
+        
+        can_dir[j] = 0;
+    }    
+    fall(final_point);
+
+    // Orthogonal directions (they are of the form e_0+e_j)
+
+    orth_dir[0] = -1;
+    for(int i = 1; i < N; i++){
+        orth_dir[i] = 0;
+    }
+    
+    for(int j = 1; j < N; j++){
+    
+        orth_dir[j] = -1;
+
+        new_point = add(point, orth_dir);
+        if(is_in(new_point))
+        {
+            
+            fall(new_point);
+        }
+        orth_dir[j] = 0;
+    }
+
+    delete[] new_point;
+    delete[] neg_new_point;
+    delete[] can_dir;
+    delete[] orth_dir;
+    delete[] dir_point;
+    
+ 
+    cout << "dead end" << endl;
+    print_point(point);
+    cout << "vertex:" << endl;
+    print_point(vertex);
+    cout << "diff:" << endl;
+    print_point(add(point, neg(vertex)));
+    char b;
+    cin >> b;
+}
+
+
+void fall_OLD(int * point){
+
+    
+    if(is_already_visited(point)) return;
+    ALREADY_VISITED.push_back(point);
+    //if(is_far(point)) return;
+    
+    if(victory(point)){
+        cout << "VICTORY AFTER " << calls << " CALLS" << endl; 
+        print_point(point);
+        char c;
+        cin >> c;
+        exit(0);
+        return;
+    }
+
+    // Auxiliar arrays
+
+    int * new_point = new int[N];
+    int * neg_new_point = new int[N];
+    int * dir_point = new int[N];
+    int * orth_dir = new int[N];
+    int * can_dir = new int[N];
+    int * final_point = new int[N];
+
+   
+   // 1. Push in the direction dir = (1,-1,-1, etc)
+    
+    dir_point = add(point, dir);
+
+    if(is_in(dir_point)){
+        fall(dir_point);     
+    } 
+
+    // Canonic norm-growing directions 
+    
+    set(final_point, point);
+
+    for(int i = 0; i < N; i++){
+        can_dir[i] = 0;
+    }
 
     for(int j = 0; j < N; j++){
         
@@ -151,12 +211,14 @@ void fall(int * point){
     
         new_point = add(final_point, can_dir);
         neg_new_point = add(final_point, neg(can_dir));
+    
         if(is_in(neg_new_point) && norm(neg_new_point) > norm(final_point))
         {
             //fall(neg_new_point);
             set(final_point, neg_new_point);
         }
-        else if(is_in(new_point) && norm(new_point) > norm(final_point)){
+        else if(is_in(new_point) && norm(new_point) > norm(final_point))
+        {
             //fall(new_point);
             set(final_point, new_point);
         }
@@ -165,12 +227,16 @@ void fall(int * point){
     fall(final_point);
 
     // Orthogonal directions (they are of the form e_0+e_j)
-    
+
     orth_dir[0] = 1;
-    for(int j = 1; j < N; j++){
-        
-        orth_dir[j] = 1;
+    for(int i = 1; i < N; i++){
+        orth_dir[i] = 0;
+    }
     
+    for(int j = 1; j < N; j++){
+    
+        orth_dir[j] = 1;
+
         new_point = add(point, orth_dir);
         neg_new_point = add(point, neg(orth_dir));
         if(is_in(neg_new_point))
@@ -194,9 +260,12 @@ void fall(int * point){
     print_point(point);
     cout << "vertex:" << endl;
     print_point(vertex);
+    cout << "diff:" << endl;
+    print_point(add(point, neg(vertex)));
     //char b;
     //cin >> b;
 }
+
 
 int norm(int * p){
     int res = 0;
@@ -248,13 +317,21 @@ void set(int * a, int * b){
         a[i] = b[i];
     }
 }
-bool is_in(int * p){
-    
-    calls ++;
+
+
+int norm_percent(int * p){
     double percent_d = (double) norm(p) / norm_vertex;
     percent_d = sqrt(percent_d); 
     int percent = (int)100*percent_d;
+    return percent;
+}
+
+bool is_in(int * p){
+    
+    calls ++;
+    int percent = norm_percent(p);
     cout << calls << " , " << ALREADY_VISITED.size() << " , " << percent << " %" << endl;
+
     
     mpz_class * res = poly_mult(secret_vector_inv, p);
     
@@ -430,7 +507,6 @@ void print_matrix(mpz_class ** p){
 int * add(int * a, int * b){
     
     int * res = new int[N];
-
     for(int i = 0; i < N; i++){
         res[i] = a[i] + b[i];
     }
@@ -438,9 +514,7 @@ int * add(int * a, int * b){
 }
 
 int * neg(int * a){
-
     int * res = new int[N];
-
     for(int i = 0; i < N; i++){
         res[i] = -a[i];
     }

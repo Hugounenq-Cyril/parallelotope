@@ -5,7 +5,7 @@
 #include <vector>
 #include "gmpxx.h"
 
-#define N 64
+#define N 334
 #define LENGTH 8
 
 mpz_class ** rotation_matrix(mpz_class *);
@@ -20,6 +20,7 @@ int * push (int *, int *, bool);
 void fall (int *);
 int * fall_orth (int *);
 
+int norm_percent(int *);
 int norm(int *);
 
 int * add(int *, int *);
