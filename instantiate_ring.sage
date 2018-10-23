@@ -1,9 +1,9 @@
 from sage.stats.distributions.discrete_gaussian_integer import DiscreteGaussianDistributionIntegerSampler
-sigma = 0.6
+sigma = 0.9
 D = DiscreteGaussianDistributionIntegerSampler(sigma=sigma)
 
 
-N = 334
+N = 128
 
 
 R.<y> = QQ[]
@@ -13,7 +13,7 @@ S.<x> = R.quotient(phi)
 
 f = 0
 
-f += randint(N,2*N)
+f += randint(5*N,6*N)
 
 for i in range(1,N,1):
     f += abs(D()) * x^i

@@ -1,62 +1,94 @@
 #include "main.hpp"
 #include "keys.hpp"
-//#include "test_keys_64.hpp"
 
 using namespace std;
 
-
-int secret_norm = norm(secret_vector);
-int diameter; // = (sum_i secret[i])^2 * N
-
-
+int TRACE; // = (sum_i secret[i])^2 * N
+int NORM_VERTEX;
 int * dir = new int[N];
-
 int * vertex = new int[N];
-int norm_vertex;
 
 vector<int *> ALREADY_VISITED;
 
-int calls = 0;
+int CALLS = 0;
 
 int main(int argc_mpz, char** argv){
 
-    
-    diameter = 0;
+
+    welcome();    
+
+    int * point = new int[N];
     for(int i = 0; i < N; i++){
-        diameter += secret_vector[i];
+        point[i] = 0;
     }
 
+    print_point(point);
+
+    fall(point);
+
+    return 0;
+
+}
+
+
+void welcome(){
+
+    TRACE = 0;
+    for(int i = 0; i < N; i++){
+        TRACE += secret_vector[i];
+    }
     cout << "Secret vector, inverse, and determinant" << endl;
     print_point(secret_vector);
     print_point(secret_vector_inv);
     cout << "Determinant = ||sv|| = " << DET << endl << endl;
-    cout << "Trace: " << diameter << endl;
+    cout << "Trace: " << TRACE << endl;
 
     char a;
     cin >> a;
 
     for(int i = 0; i < N; i++){
-        vertex[i] = secret_vector[i]-diameter/2;
+        vertex[i] = secret_vector[i]-TRACE/2;
     }
-    norm_vertex = norm(vertex);
+    NORM_VERTEX = norm(vertex);
 
     dir[0] = 1;
     
     for(int i = 1; i < N; i++){
         dir[i] = -1;
     }
-
-
-    int * point = new int[N];
-    for(int i = 0; i < N; i++){
-        point[i] = 0;
-    }
-    
-    /*int point[N] = {20, -21, -22, -22, -22, -21, -21, -22, -22, -22, -22, -22, -22, -21, -21, -20, -21, -21, -22, -22, -21, -21, -21, -21, -21, -21, -22, -21, -21, -22, -21, -21};*/
-
-    fall(point);
-    return 0;
 }
+
+
+
+void erase_me(int * p){
+    cout << "erase_me" << endl;
+    print_point(p);
+    print_point(vertex);
+    int * can_dir = new int[N];
+    int * test_point = new int[N];
+    string a = "";
+    int cont = 0;
+
+    for(int i = 0; i < N; i++){
+        can_dir[i] = 0;
+    }
+    for(int i = 0; i < N; i++){
+        can_dir[i] = 1;
+        test_point = add(p, can_dir);
+        
+        
+        
+        if(is_in(test_point)){ a += ", "+to_string(i); cont ++;}
+        test_point = add(p,neg(can_dir));
+        
+        
+        if(is_in(test_point)){  a += ", "+to_string(-i); cont ++;}
+        can_dir[i] = 0;
+    }
+    cout << a << endl;
+    cout << cont << endl;
+}
+
 
 
 bool victory(int * p){
@@ -67,25 +99,14 @@ bool victory(int * p){
 
 
 void fall(int * point){
-
+    if(is_far(point)) return;
     
     if(is_already_visited(point)) return;
     ALREADY_VISITED.push_back(point);
-    //if(is_far(point)) return;
-    
-    if(victory(point)){
-        cout << "VICTORY AFTER " << calls << " CALLS" << endl; 
-        print_point(point);
-        char c;
-        cin >> c;
-        exit(0);
-        return;
-    }
 
     // Auxiliar arrays
 
     int * new_point = new int[N];
-    int * neg_new_point = new int[N];
     int * dir_point = new int[N];
     int * orth_dir = new int[N];
     int * can_dir = new int[N];
@@ -123,6 +144,7 @@ void fall(int * point){
         
         can_dir[j] = 0;
     }    
+    
     fall(final_point);
 
     // Orthogonal directions (they are of the form e_0+e_j)
@@ -146,20 +168,21 @@ void fall(int * point){
     }
 
     delete[] new_point;
-    delete[] neg_new_point;
     delete[] can_dir;
     delete[] orth_dir;
     delete[] dir_point;
     
- 
+
     cout << "dead end" << endl;
     print_point(point);
     cout << "vertex:" << endl;
     print_point(vertex);
     cout << "diff:" << endl;
     print_point(add(point, neg(vertex)));
-    char b;
-    cin >> b;
+    //char b;
+    //cin >> b;
+
+
 }
 
 
@@ -171,7 +194,7 @@ void fall_OLD(int * point){
     //if(is_far(point)) return;
     
     if(victory(point)){
-        cout << "VICTORY AFTER " << calls << " CALLS" << endl; 
+        cout << "VICTORY AFTER " << CALLS << " CALLS" << endl; 
         print_point(point);
         char c;
         cin >> c;
@@ -279,12 +302,12 @@ int norm(int * p){
 bool is_far(int * p){
     
     int * a = new int[N];
-    a[0] = p[0] - diameter/2;
+    a[0] = p[0] - TRACE/2;
     for(int i = 1; i < N; i++){
-        a[i] = p[i] + diameter/2;
+        a[i] = p[i] + TRACE/2;
     }
 
-    //if(norm(a) > N*diameter*diameter/4){return true;}
+    //if(norm(a) > N*TRACE*TRACE/4){return true;}
     return false;
 }
 
@@ -320,7 +343,7 @@ void set(int * a, int * b){
 
 
 int norm_percent(int * p){
-    double percent_d = (double) norm(p) / norm_vertex;
+    double percent_d = (double) norm(p) / NORM_VERTEX;
     percent_d = sqrt(percent_d); 
     int percent = (int)100*percent_d;
     return percent;
@@ -328,27 +351,30 @@ int norm_percent(int * p){
 
 bool is_in(int * p){
     
-    calls ++;
-    int percent = norm_percent(p);
-    cout << calls << " , " << ALREADY_VISITED.size() << " , " << percent << " %" << endl;
+    if(victory(p)){
+        cout << "SECRET VECTOR FOUND, AFTER " << CALLS << " CALLS" << endl; 
+        for(int i = 0; i < N; i++){
+            p[i] += TRACE / 2;
+        }
+        print_point(p);
+        print_point(secret_vector);
 
-    
+        exit(0);
+    }
+
+    CALLS ++;    
     mpz_class * res = poly_mult(secret_vector_inv, p);
     
-    /*if(percent == 100){
-        int * aux = new int[N];
-        aux = add(p, neg(vertex));
-        print_point(aux);
-        char c ;
-        cin >> c;
-    }*/
-
     // if res/DET < -1/2 or > 1/2
 
     for(int i = 0; i < N; i++){
         if(cmp( 2 * res[i], - DET) < 0 || cmp( 2 * res[i], DET) > 0)
             return false;
     }
+    
+    int percent = norm_percent(p);
+    cout << CALLS << " , " << ALREADY_VISITED.size() << " , " << percent << " %" << endl;
+
     return true;
 }
 
